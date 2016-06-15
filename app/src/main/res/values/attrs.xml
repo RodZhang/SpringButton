@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SpringButton">
+        <attr name="buttonDividerColor" format="color"/>
+        <attr name="buttonDividerWidth" format="dimension"/>
+        <attr name="buttonDividerPadding" format="dimension"/>
+        <attr name="topLeftCornerRadio" format="dimension"/>
+        <attr name="topRightCornerRadio" format="dimension"/>
+        <attr name="bottomRightCornerRadio" format="dimension"/>
+        <attr name="bottomLeftCornerRadio" format="dimension"/>
+        <attr name="buttonColor" format="color"/>
+    </declare-styleable>
+</resources>

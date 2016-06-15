@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/activity_main"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.rod.springbutton.MainActivity">
+
+    <com.rod.springbutton.SpringButton
+        android:id="@+id/spring_button"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:textSize="12sp"
+        android:textColor="#FFFF00"
+        app:buttonDividerColor="#ffffff"
+        app:buttonDividerPadding="10dp"
+        app:buttonDividerWidth="1px"
+        app:bottomLeftCornerRadio="10dp"
+        app:bottomRightCornerRadio="10dp"
+        app:buttonColor="@color/button_color"
+        />
+</LinearLayout>
