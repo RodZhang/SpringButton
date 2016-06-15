@@ -197,13 +197,19 @@ public class SpringButton extends LinearLayout {
 
     @NonNull
     private StateListDrawable getItemBGDrawable(int index) {
-        if (index == 0) {
+        if (mButtonTexts.length == 1) {
+            return getSingleItemBg();
+        } else if (index == 0) {
             return getFirstItemBg();
         } else if (index == mButtonTexts.length - 1) {
             return getLastItemBg();
         } else {
             return getNormalItemBg();
         }
+    }
+
+    private StateListDrawable getSingleItemBg() {
+        return getItemBgStateListDrawable(mBoundsRadio.getTopLeftRadio(), mBoundsRadio.getTopRightRadio(), mBoundsRadio.getBottomRightRadio(), mBoundsRadio.getBottomLeftRadio());
     }
 
     private StateListDrawable getFirstItemBg() {

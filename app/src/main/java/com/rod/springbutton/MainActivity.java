@@ -14,7 +14,7 @@ public class MainActivity extends AppCompatActivity {
 
         SpringButton button = (SpringButton) findViewById(R.id.spring_button);
 
-        String[] buttonTexts = new String[] {"Button1", "Button2", "Button3", "Button4", "Button5"};
+        String[] buttonTexts = new String[] {"Button1"};
         button.setButtons(buttonTexts);
         button.setOnButtonClickListener(new SpringButton.OnButtonClickListener() {
             @Override
