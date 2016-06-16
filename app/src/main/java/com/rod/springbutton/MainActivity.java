@@ -14,11 +14,12 @@ public class MainActivity extends AppCompatActivity {
 
         SpringButton button = (SpringButton) findViewById(R.id.spring_button);
 
-        String[] buttonTexts = new String[] {"Button1"};
+        String[] buttonTexts = new String[] {"Button1", "Button2", "Button2"};
         button.setButtons(buttonTexts);
         button.setOnButtonClickListener(new SpringButton.OnButtonClickListener() {
             @Override
             public void onButtonClick(View view, int pos) {
+                view.setSelected(!view.isSelected());
                 Toast.makeText(MainActivity.this, String.format("clicked pos:%d, tag=%s", pos, view.getTag()), Toast.LENGTH_SHORT).show();
             }
         });

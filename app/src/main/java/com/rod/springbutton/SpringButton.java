@@ -7,7 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -26,6 +26,7 @@ public class SpringButton extends LinearLayout {
 
     private static final int INVALID_INDEX = -1;
     private static final int DEFAULT_BUTTON_COLOR = 0x00000000;
+    private static final ColorStateList DEFAULT_BUTTON_COLOR_LIST = ColorStateList.valueOf(DEFAULT_BUTTON_COLOR);
     private static final int[] ATTRS = new int[]{
             android.R.attr.textSize,
             android.R.attr.textColor
@@ -41,7 +42,7 @@ public class SpringButton extends LinearLayout {
     private int mButtonDividerPadding = 0;
     private int mButtonDividerWidth = 1;
     private int mButtonDividerColor = 0xffffffff;
-    private ColorStateList mButtonColor = ColorStateList.valueOf(DEFAULT_BUTTON_COLOR);
+    private ColorStateList mButtonColor = DEFAULT_BUTTON_COLOR_LIST;
 
     private OnButtonClickListener mButtonClickListener;
     private String[] mButtonTexts = new String[0];
@@ -120,11 +121,7 @@ public class SpringButton extends LinearLayout {
     }
 
     public void setButtonColor(ColorStateList buttonColor) {
-        if (buttonColor == null) {
-            // TODO: need default color state list
-            return;
-        }
-        mButtonColor = buttonColor;
+        mButtonColor = buttonColor == null ? DEFAULT_BUTTON_COLOR_LIST : buttonColor;
         updateTexts();
     }
 
@@ -138,7 +135,7 @@ public class SpringButton extends LinearLayout {
 
     public void setButtons(String[] texts, float[] weights) {
         if (texts == null) {
-            // TODO: add log
+            removeAllViews();
             return;
         }
 
@@ -172,8 +169,8 @@ public class SpringButton extends LinearLayout {
         child.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize);
         child.setText(mButtonTexts[index]);
         child.setTag(mButtonTexts[index]);
-        StateListDrawable bg = getItemBGDrawable(index);
-        child.setBackgroundDrawable(bg);
+        Drawable bg = getItemBGDrawable(index, mButtonColor.getColorForState(new int[]{}, DEFAULT_BUTTON_COLOR));
+        setChildBackground(child, bg);
 
         LinearLayout.LayoutParams lp = new LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, mWeight[index]);
         child.setLayoutParams(lp);
@@ -193,58 +190,70 @@ public class SpringButton extends LinearLayout {
                 }
             }
         });
+
     }
 
-    @NonNull
-    private StateListDrawable getItemBGDrawable(int index) {
-        if (mButtonTexts.length == 1) {
-            return getSingleItemBg();
-        } else if (index == 0) {
-            return getFirstItemBg();
-        } else if (index == mButtonTexts.length - 1) {
-            return getLastItemBg();
+    @Override
+    public void childDrawableStateChanged(View child) {
+        super.childDrawableStateChanged(child);
+        updateChildBackground(child);
+    }
+
+    private void updateChildBackground(View child) {
+        if (mButtonColor == null || !mButtonColor.isStateful()) {
+            return;
+        }
+        
+        int color = mButtonColor.getColorForState(child.getDrawableState(), 0);
+        int index = getChildIndex(child);
+
+        Drawable newBackground = getItemBGDrawable(index, color);
+        setChildBackground(child, newBackground);
+    }
+
+    private void setChildBackground(@NonNull View child, @NonNull Drawable background) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            child.setBackground(background);
         } else {
-            return getNormalItemBg();
+            child.setBackgroundDrawable(background);
         }
     }
 
-    private StateListDrawable getSingleItemBg() {
-        return getItemBgStateListDrawable(mBoundsRadio.getTopLeftRadio(), mBoundsRadio.getTopRightRadio(), mBoundsRadio.getBottomRightRadio(), mBoundsRadio.getBottomLeftRadio());
+    @NonNull
+    private Drawable getItemBGDrawable(int index, int color) {
+        if (mButtonTexts.length == 1) {
+            return getSingleItemBackground(color);
+        } else if (index == 0) {
+            return getFirstItemBackground(color);
+        } else if (index == mButtonTexts.length - 1) {
+            return getLastItemBackground(color);
+        } else {
+            return getNormalItemBackground(color);
+        }
     }
 
-    private StateListDrawable getFirstItemBg() {
-        return getItemBgStateListDrawable(mBoundsRadio.getTopLeftRadio(), 0, 0, mBoundsRadio.getBottomLeftRadio());
+    private Drawable getSingleItemBackground(int color) {
+        return getItemBackgroundDrawable(color, mBoundsRadio.getTopLeftRadio(), mBoundsRadio.getTopRightRadio(), mBoundsRadio.getBottomRightRadio(), mBoundsRadio.getBottomLeftRadio());
     }
 
-    private StateListDrawable getNormalItemBg() {
-        return getItemBgStateListDrawable(0, 0, 0, 0);
+    private Drawable getFirstItemBackground(int color) {
+        return getItemBackgroundDrawable(color, mBoundsRadio.getTopLeftRadio(), 0, 0, mBoundsRadio.getBottomLeftRadio());
     }
 
-    private StateListDrawable getLastItemBg() {
-        return getItemBgStateListDrawable(0, mBoundsRadio.getTopRightRadio(), mBoundsRadio.getBottomRightRadio(), 0);
+    private Drawable getNormalItemBackground(int color) {
+        return getItemBackgroundDrawable(color, 0, 0, 0, 0);
+    }
+
+    private Drawable getLastItemBackground(int color) {
+        return getItemBackgroundDrawable(color, 0, mBoundsRadio.getTopRightRadio(), mBoundsRadio.getBottomRightRadio(), 0);
     }
 
     @NonNull
-    private StateListDrawable getItemBgStateListDrawable(final float topLeftRadio, final float topRightRadio, final float bottomRightRadio, final float bottomLeftRadio) {
-        Drawable normalDrawable = getItemBgDrawable(mButtonColor.getColorForState(new int[]{}, DEFAULT_BUTTON_COLOR), topLeftRadio, topRightRadio, bottomRightRadio, bottomLeftRadio);
-        Drawable pressedDrawable = getItemBgDrawable(mButtonColor.getColorForState(new int[]{android.R.attr.state_pressed}, DEFAULT_BUTTON_COLOR), topLeftRadio, topRightRadio, bottomRightRadio, bottomLeftRadio);
-        return getStateListDrawable(normalDrawable, pressedDrawable);
-    }
-
-    @NonNull
-    private Drawable getItemBgDrawable(final int color, final float topLeftRadio, final float topRightRadio, final float bottomRightRadio, final float bottomLeftRadio) {
+    private Drawable getItemBackgroundDrawable(int color, final float topLeftRadio, final float topRightRadio, final float bottomRightRadio, final float bottomLeftRadio) {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setColor(color);
         drawable.setCornerRadii(new float[]{topLeftRadio, topLeftRadio, topRightRadio, topRightRadio, bottomRightRadio, bottomRightRadio, bottomLeftRadio, bottomLeftRadio});
         return drawable;
-    }
-
-    @NonNull
-    private StateListDrawable getStateListDrawable(Drawable normalDrawable, Drawable pressedDrawable) {
-        StateListDrawable stateListDrawable = new StateListDrawable();
-        stateListDrawable.addState(new int[]{android.R.attr.state_pressed}, pressedDrawable);
-        stateListDrawable.addState(new int[]{}, normalDrawable);
-        return stateListDrawable;
     }
 
     private int getChildIndex(View view) {
